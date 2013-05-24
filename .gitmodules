@@ -1,0 +1,6 @@
+[submodule "phonegap"]
+	path = phonegap
+	url = https://github.com/phonegap/phonegap
+[submodule "src"]
+	path = src
+	url = https://github.com/jdachtera/grundschrift-app-source

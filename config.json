@@ -1,0 +1,53 @@
+{
+  "app": {
+    "id": "de.unibi.grundschrift",
+    "title": "Grundschrift",
+    "version": "1.0.16",
+    "vendor": "Jascha Dachtera",
+    "category": "Education",
+    "icon": "assets/icons/icon.png"
+  },
+  
+  "sdk_dirs": {
+      "android": "~/android-sdks/",
+      "webos": "/opt/PalmSDK/Current/"
+  },
+
+  "build_commands": {
+      "Concatenating js and css files":
+      "sh tools/deploy.sh"
+  },
+	"node enyo/tools/minifier/minify.js -enyo ./enyo package.js -no-alias -less -output build/build":1,
+
+  "cruft_files": [
+    "\\.DS_Store$", "^/lib/\\.js$", "^/lib/\\.css$", "\\.less$"
+  ],
+  
+  "cruft_dirs": [
+    "\\.svn$", "\\.git.*$", "\\.settings$", "/lib/grundschrift$", "enyo$", "examples$", "api$", "tools$"
+  ],
+  
+  "cordova_paths": {
+    "webos": "./lib_webos/framework/",
+    "android": "./phonegap/lib/android/",
+    "ios": "./phonegap/lib/ios/bin/templates/project/www/",
+    "web": "./lib_web/"
+  },
+  
+
+  "build_dirs": {
+    "webos": "./package_webos",
+    "android": "package_android/assets/www",
+    "ios": "./package_ios/www",
+    "web": "./package_web"
+  },
+  
+  "source_dirs": {
+    "webos": "./lib_webos",
+    "android": "./phonegap/lib/android",
+    "ios": "./phonegap/lib/ios",
+    "web": "./lib_web"
+  }
+  
+  
+}

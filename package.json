@@ -1,0 +1,21 @@
+{
+  "author": "Jascha Dachtera <jascha.dachtera@gmail.com>",
+  "name": "CordovaBuild",
+  "description": "Build Script for Cordova apps",
+  "version": "0.0.1",
+  "main": "CordovaBuild.js",
+  "dependencies": {
+    "fs-extra": "~0.1.2",
+    "wrench": "~1.3.9",
+    "less": "~1.3.0",
+    "cli-color": "~0.1.7",
+    "clean-css": "~0.4.2",
+    "jsdom": "~0.2.15",
+    "iced-coffee-script": "~1.6.2c"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
