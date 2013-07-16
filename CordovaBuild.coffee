@@ -67,7 +67,13 @@ class CordovaBuild
     @conf["cordova_version"] = contents.split('\n')[0]
     
     @log "prepare", "Copying cordova.js"
-    cordova_js = "#{@conf.cordova_paths[@target]}cordova-#{@conf.cordova_version}.js"
+    # Try cordova.js first then cordova-x.x.x.js
+    cordova_js = "#{@conf.cordova_paths[@target]}cordova.js"
+
+    await fs.stat cordova_js, defer err, stats
+    if err or not stats.isFile()
+      cordova_js = "#{@conf.cordova_paths[@target]}cordova-#{@conf.cordova_version}.js"
+
     await fs.copy cordova_js, "#{@conf.build_dirs[@target]}/cordova.js", defer err
     @checkError err
     
@@ -260,15 +266,15 @@ class CordovaBuild
   
     
   android_build: (callback) =>
-    await fs.exists "./package_android", defer exists
+    await fs.exists "./build/android", defer exists
     if exists
-      @log "prepare", "Reusing old Skeleton directory. Delete package_android to reset."
+      @log "prepare", "Reusing old Skeleton directory. Delete build/android to reset."
     else
       @log "prepare", "Generating Android App Skeleton"
-      await exec "#{@conf.source_dirs[@target]}/bin/create package_android #{@conf.app.id} main", defer err, stdout, stderr
+      await exec "#{@conf.source_dirs[@target]}/bin/create build/android #{@conf.app.id} main", defer err, stdout, stderr
       @checkError err, stderr, stdout
       
-      await fs.writeFile "./package_android/res/values/strings.xml",
+      await fs.writeFile "./build/android/res/values/strings.xml",
           '<?xml version="1.0" encoding="utf-8"?>
           <resources>
               <string name="app_name">' + @conf.app.title + '</string>
@@ -277,23 +283,28 @@ class CordovaBuild
       
       @log "prepare", "Removing cordova icons"
       for n in ["hdpi", "mdpi", "ldpi", "xhdpi"]
-        await fs.unlink "./package_android/res/drawable-#{n}/icon.png", defer err
+        await fs.unlink "./build/android/res/drawable-#{n}/icon.png", defer err
         @checkError err
       
       @log "prepare", "Removing assets/www"
-      await wrench.rmdirRecursive "./package_android/assets/www", defer err
-    
+      await wrench.rmdirRecursive "./build/android/assets/www", defer err
+
+    await fs.stat "./AndroidManifest.xml", defer err, stats
+    if not err and stats.isFile()
+      @log "prepare", "Copying custom AndroidManifest.xml"
+      fs.createReadStream("./AndroidManifest.xml").pipe(fs.createWriteStream("./build/android/AndroidManifest.xml"));
+
     await @web defer err
     
     @log "PREPARE", "Moving Icon file"
-    await fs.rename "#{@conf.build_dirs[@target]}/#{@conf.app.icon}", "./package_android/res/drawable/icon.png", defer err
+    await fs.rename "#{@conf.build_dirs[@target]}/#{@conf.app.icon}", "./build/android/res/drawable/icon.png", defer err
     
     @log "PACKAGE", "Creating package"
-    await exec "ant debug", { cwd: "./package_android" }, defer err, stdout, stderr
+    await exec "ant debug", { cwd: "./build/android" }, defer err, stdout, stderr
     @checkError err, stdout, stderr
     
     @log "PACKAGE", "Moving package into ./bin"
-    await fs.rename "./package_android/bin/main-debug.apk", "./bin/#{@filename}", defer err
+    await fs.rename "./build/android/bin/main-debug.apk", "./bin/#{@filename}", defer err
     @checkError err
     
     callback()
@@ -335,16 +346,16 @@ class CordovaBuild
 
 
   ios_build: (callback) =>
-    await fs.exists "./package_ios", defer exists
+    await fs.exists "./build/ios", defer exists
     if exists
-      @log "prepare", "Reusing old Skeleton directory. Delete package_ios to reset."
+      @log "prepare", "Reusing old Skeleton directory. Delete build/ios to reset."
     else
       @log "prepare", "Generating IOS App Skeleton"
-      await exec "#{@conf.source_dirs[@target]}/bin/create package_ios #{@conf.app.id} #{@conf.app.title}", defer err, stdout, stderr
+      await exec "#{@conf.source_dirs[@target]}/bin/create build/ios #{@conf.app.id} #{@conf.app.title}", defer err, stdout, stderr
       @checkError err, stderr, stdout
 
       @log "prepare", "Removing /www"
-      await wrench.rmdirRecursive "./package_ios/www", defer err
+      await wrench.rmdirRecursive "./build/ios/www", defer err
 
     await @web defer err
 
@@ -374,7 +385,7 @@ targets = [
   'web'
   'webos'
   'android',
-  'ios'
+  'ios',
 ]
 
 steps = [

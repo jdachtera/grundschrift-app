@@ -1,5 +1,5 @@
 node_modules
 bin
-package_*
+build/*
 .idea
 src/assets/*/

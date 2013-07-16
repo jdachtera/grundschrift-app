@@ -2,7 +2,7 @@
   "app": {
     "id": "de.unibi.grundschrift",
     "title": "Grundschrift",
-    "version": "1.0.16",
+    "version": "1.0.17-dev",
     "vendor": "Jascha Dachtera",
     "category": "Education",
     "icon": "assets/icons/icon.png"
@@ -36,10 +36,10 @@
   
 
   "build_dirs": {
-    "webos": "./package_webos",
-    "android": "package_android/assets/www",
-    "ios": "./package_ios/www",
-    "web": "./package_web"
+    "webos": "./build/webos",
+    "android": "build/android/assets/www",
+    "ios": "./build/ios/www",
+    "web": "./build/web"
   },
   
   "source_dirs": {
