@@ -39,6 +39,20 @@ class CordovaBuild
     if (err)
       console.error stderr || stdout || err
       throw "Error"
+
+  ask: (question, callback) =>
+    stdin = process.stdin
+    stdout = process.stdout
+
+    stdin.resume();
+    stdout.write question + ": "
+
+    stdin.once 'data', (data)->
+      data = data.toString().trim()
+      str = ''
+      str.length = (question + ': ' + data.toString()).length
+      stdout.write '\r' + str
+      callback(data)
       
   resolveHome: (paths) ->
     paths[k] = path.split("~").join(process.env.HOME) for k,path of paths
@@ -113,20 +127,20 @@ class CordovaBuild
     callback()
   
   debug: (callback) =>
-    @log "debug", "Removing index.html"
-    await fs.unlink "#{@conf.build_dirs[@target]}/index.html", defer err
+    @log "debug", "Removing main.html"
+    await fs.unlink "#{@conf.build_dirs[@target]}/main.html", defer err
     @checkError err
     
-    @log "debug", "Renaming debug.html to index.html"
-    await fs.rename "#{@conf.build_dirs[@target]}/debug.html", "#{@conf.build_dirs[@target]}/index.html", defer err
+    @log "debug", "Renaming debug.html to main.html"
+    await fs.rename "#{@conf.build_dirs[@target]}/debug.html", "#{@conf.build_dirs[@target]}/main.html", defer err
     @checkError err
     
     @log "debug", "Resolving network address"
     await dns.lookup os.hostname(), defer err, @address, fam
     @checkError err
     
-    @log "debug", "Parsing index.html"
-    await fs.readFile "#{@conf.build_dirs[@target]}/index.html", "utf-8", defer err, html
+    @log "debug", "Parsing main.html"
+    await fs.readFile "#{@conf.build_dirs[@target]}/main.html", "utf-8", defer err, html
     await jsdom.env html, [], defer errors, window
     @checkError errors
 
@@ -135,8 +149,8 @@ class CordovaBuild
     html = '<script src="http://' + @address + ':8081/target/target-script-min.js#anonymous"></script>' + html
     window.document.getElementsByTagName("head")[0].innerHTML = html
     
-    @log "debug", "Writing index.html"
-    await fs.writeFile "#{@conf.build_dirs[@target]}/index.html", window.document._doctype._fullDT + window.document.outerHTML, defer err
+    @log "debug", "Writing main.html"
+    await fs.writeFile "#{@conf.build_dirs[@target]}/main.html", window.document._doctype._fullDT + window.document.outerHTML, defer err
     @checkError err
     
     
@@ -297,14 +311,27 @@ class CordovaBuild
     await @web defer err
     
     @log "PREPARE", "Moving Icon file"
-    await fs.rename "#{@conf.build_dirs[@target]}/#{@conf.app.icon}", "./build/android/res/drawable/icon.png", defer err
-    
+    split = @conf.app.icon.split(".")
+    ext = split.pop();
+    basename = split.join('.')
+
+    for n in ["hdpi", "mdpi", "ldpi", "xhdpi"]
+      await fs.rename "#{@conf.build_dirs[@target]}/#{basename}-#{n}.#{ext}", "./build/android/res/drawable-#{n}/icon.png", defer err
+
+    await fs.rename "#{@conf.build_dirs[@target]}/#{basename}.#{ext}", "./build/android/res/drawable/icon.png", defer err
+    mode = "debug"
+
+    await fs.stat './ant.properties', defer err, stats
+    if not err and stats.isFile()
+      fs.createReadStream("./ant.properties").pipe(fs.createWriteStream("./build/android/ant.properties"));
+      mode = "release"
+
     @log "PACKAGE", "Creating package"
-    await exec "ant debug", { cwd: "./build/android" }, defer err, stdout, stderr
+    await exec "ant " + mode, { cwd: "./build/android" }, defer err, stdout, stderr
     @checkError err, stdout, stderr
     
     @log "PACKAGE", "Moving package into ./bin"
-    await fs.rename "./build/android/bin/main-debug.apk", "./bin/#{@filename}", defer err
+    await fs.rename "./build/android/bin/main-" + mode + ".apk", "./bin/#{@filename}", defer err
     @checkError err
     
     callback()
@@ -326,22 +353,21 @@ class CordovaBuild
     callback()
     
   android_log: (callback) =>
-    log = spawn "adb", ["logcat", @conf.app.id]
+    log = spawn "adb", ["logcat -s CordovaLog", @conf.app.id]
     log.stdout.setEncoding "utf8"
 
     # Hack the important messages out of the log junk
     log.stdout.on "data", (data) ->
       lines = data.split("\r\n")
       for line in lines
-        if line.search /CordovaLog.+/  > -1 && line.search /file:\/\/\/android_asset\/www\/.+/ > -1
-          parts = line.split ": "
-          if parts.length > 2
-            number = parts[2].split(" ")[1]
-            file = parts[1].split("file:///android_asset/www/").pop()
-            if line.search(/Error.+/) > -1
-              console.log("ANDROID_ERROR: " + clc.red(parts.slice(4).join(": ")) + " (" + file +  " Line: " + number + ")")
-            else if number
-                    console.log("ANDROID_LOG: " + clc.green(parts[3]) + " (" + file + " Line: " + number + ")")
+        parts = line.split ": "
+        if parts.length > 2
+          number = parts[2].split(" ")[1]
+          file = parts[1].split("file:///android_asset/www/").pop()
+          if line.search(/Error.+/) > -1
+            console.log("ANDROID_ERROR: " + clc.red(parts.slice(4).join(": ")) + " (" + file +  " Line: " + number + ")")
+          else if number
+                  console.log("ANDROID_LOG: " + clc.green(parts[3]) + " (" + file + " Line: " + number + ")")
     callback()
 
 
@@ -371,6 +397,8 @@ class CordovaBuild
     #exec "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\\ Simulator.app/Contents/MacOS/iPhone\\ Simulator -SimulateApplication package"
 
     callback()
+
+
 
                     
 exec = require("child_process").exec

@@ -1,5 +1,7 @@
 node_modules
 bin
 build/*
+ant.properties
+my-release-key.keystore
 .idea
 src/assets/*/

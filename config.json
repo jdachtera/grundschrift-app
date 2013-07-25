@@ -2,12 +2,12 @@
   "app": {
     "id": "de.unibi.grundschrift",
     "title": "Grundschrift",
-    "version": "1.0.17-dev",
+    "version": "1.0.17",
     "vendor": "Jascha Dachtera",
     "category": "Education",
-    "icon": "assets/icons/icon.png"
+    "icon": "assets/icons/Grundschrift_Icon.png"
   },
-  
+
   "sdk_dirs": {
       "android": "~/android-sdks/",
       "webos": "/opt/PalmSDK/Current/"

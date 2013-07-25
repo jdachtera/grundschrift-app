@@ -1,0 +1,26 @@
+#!/usr/local/bin/node
+
+var express     = require('express'),
+    app         = express(),
+    exec        = require('child_process').exec,
+    os          = require("os");
+
+app.use(express.static(__dirname + '/src'));
+
+app.listen(8099, "127.0.0.1");
+
+console.log("Server is running at: http://127.0.0.1:8099");
+console.log("Attempting to open your browser at http://127.0.0.1:8099/debug.html");
+
+if (os.platform() == 'darwin') {
+    exec('open http://127.0.0.1:8099/debug.html');
+} else if (os.platform() == 'linux') {
+    exec('xdg-open http://127.0.0.1:8099/debug.html');
+} else if (os.platform() == 'win32') {
+    exec('cmd /c "start http://127.0.0.1:8099/debug.html"');
+}
+
+
+
+
+
