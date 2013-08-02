@@ -398,6 +398,42 @@ class CordovaBuild
 
     callback()
 
+  ios_log: (callback) =>
+    @log "INSTALL", "Log app via Xcode!"
+    callback()
+
+
+  w8_build: (callback) =>
+    await fs.exists "./build/windows8", defer exists
+    if exists
+      @log "prepare", "Reusing old Skeleton directory. Delete build/windows8 to reset."
+    else
+      @log "prepare", "Generating IOS App Skeleton"
+      await exec "#{@conf.source_dirs[@target]}/bin/create.bat build/windows8 #{@conf.app.id} #{@conf.app.title}", defer err, stdout, stderr
+      @checkError err, stderr, stdout
+
+      @log "prepare", "Removing /www"
+      await wrench.rmdirRecursive "./build/ios/www", defer err
+
+    await @web defer err
+
+
+    callback()
+
+  w8_install: (callback) =>
+    @log "INSTALL", "Install package via Visual Studio!"
+    callback()
+
+  w8_launch: (callback) =>
+    @log "LAUNCH", "Launch project via Visual Studio!"
+    #exec "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\\ Simulator.app/Contents/MacOS/iPhone\\ Simulator -SimulateApplication package"
+
+    callback()
+
+  w8_log: (callback) =>
+    @log "INSTALL", "Log app via Visual Studio!"
+    callback()
+
 
 
                     

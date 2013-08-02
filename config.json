@@ -30,7 +30,8 @@
   "cordova_paths": {
     "webos": "./lib_webos/framework/",
     "android": "./phonegap/lib/android/",
-    "ios": "./phonegap/lib/ios/bin/templates/project/www/",
+    "ios": "./phonegap/lib/ios/CordovaLib/",
+	"windows8": "./phonegap/lib/windows8/",
     "web": "./lib_web/"
   },
   
@@ -39,6 +40,7 @@
     "webos": "./build/webos",
     "android": "build/android/assets/www",
     "ios": "./build/ios/www",
+	"windows8": "./build/windows8/www",
     "web": "./build/web"
   },
   
@@ -46,6 +48,7 @@
     "webos": "./lib_webos",
     "android": "./phonegap/lib/android",
     "ios": "./phonegap/lib/ios",
+	"windows8": "./phonegap/lib/windows8",
     "web": "./lib_web"
   }
   
