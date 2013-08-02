@@ -94,7 +94,11 @@ class CordovaBuild
     callback()
     
   build: (callback) =>
-    for message, command of @conf.build_commands
+    if os.platform() == 'win32'
+      commands = @conf.build_commands_windows
+    else
+      commands = @conf.build_commands
+    for message, command of commands
       @log "build", message
       await exec command, {cwd: @conf.build_dirs[@target]}, defer err
       @checkError err
@@ -135,23 +139,23 @@ class CordovaBuild
     await fs.rename "#{@conf.build_dirs[@target]}/debug.html", "#{@conf.build_dirs[@target]}/main.html", defer err
     @checkError err
     
-    @log "debug", "Resolving network address"
-    await dns.lookup os.hostname(), defer err, @address, fam
-    @checkError err
+    #@log "debug", "Resolving network address"
+    #await dns.lookup os.hostname(), defer err, @address, fam
+    #@checkError err
     
-    @log "debug", "Parsing main.html"
-    await fs.readFile "#{@conf.build_dirs[@target]}/main.html", "utf-8", defer err, html
-    await jsdom.env html, [], defer errors, window
-    @checkError errors
+    #@log "debug", "Parsing main.html"
+    #await fs.readFile "#{@conf.build_dirs[@target]}/main.html", "utf-8", defer err, html
+    #await jsdom.env html, [], defer errors, window
+    #@checkError errors
 
-    @log "debug", "Installing weinre"
-    html = window.document.getElementsByTagName("head")[0].innerHTML
-    html = '<script src="http://' + @address + ':8081/target/target-script-min.js#anonymous"></script>' + html
-    window.document.getElementsByTagName("head")[0].innerHTML = html
+    #@log "debug", "Installing weinre"
+    #html = window.document.getElementsByTagName("head")[0].innerHTML
+    #html = '<script src="http://' + @address + ':8081/target/target-script-min.js#anonymous"></script>' + html
+    #window.document.getElementsByTagName("head")[0].innerHTML = html
     
-    @log "debug", "Writing main.html"
-    await fs.writeFile "#{@conf.build_dirs[@target]}/main.html", window.document._doctype._fullDT + window.document.outerHTML, defer err
-    @checkError err
+    #@log "debug", "Writing main.html"
+    #await fs.writeFile "#{@conf.build_dirs[@target]}/main.html", window.document._doctype._fullDT + window.document.outerHTML, defer err
+    #@checkError err
     
     
     callback()
@@ -408,15 +412,25 @@ class CordovaBuild
     if exists
       @log "prepare", "Reusing old Skeleton directory. Delete build/windows8 to reset."
     else
-      @log "prepare", "Generating IOS App Skeleton"
-      await exec "#{@conf.source_dirs[@target]}/bin/create.bat build/windows8 #{@conf.app.id} #{@conf.app.title}", defer err, stdout, stderr
+      @log "prepare", "Generating Windows 8 App Skeleton"
+      await exec "cmd /c #{@conf.source_dirs[@target]}\\bin\\create.bat build\\windows8 #{@conf.app.id} #{@conf.app.title}", defer err, stdout, stderr
       @checkError err, stderr, stdout
 
-      @log "prepare", "Removing /www"
-      await wrench.rmdirRecursive "./build/ios/www", defer err
+      @log "prepare", "Removing \www"
+      await wrench.rmdirRecursive ".\build\windows8\www", defer err
 
     await @web defer err
 
+    await wrench.copyDirRecursive "#{@conf.source_dirs[@target]}\\template\\www\\js", "#{@conf.build_dirs[@target]}\\js", defer err
+    await wrench.copyDirRecursive "#{@conf.source_dirs[@target]}\\template\\www\\css", "#{@conf.build_dirs[@target]}\\css", defer err
+    await wrench.copyDirRecursive "#{@conf.source_dirs[@target]}\\template\\www\\img", "#{@conf.build_dirs[@target]}\\img", defer err
+    
+    await fs.unlink "#{@conf.build_dirs[@target]}\\index.html", defer err
+    await fs.rename "#{@conf.build_dirs[@target]}\\main.html", "#{@conf.build_dirs[@target]}\\index.html", defer err
+
+    await fs.stat "./package.appxmanifest", defer err, stats
+    if not err and stats.isFile()
+        await fs.createReadStream("./package.appxmanifest").pipe(fs.createWriteStream("./build/windows8/package.appxmanifest"))
 
     callback()
 

@@ -17,6 +17,11 @@
       "Concatenating js and css files":
       "sh tools/deploy.sh"
   },
+
+  "build_commands_windows": {
+      "Concatenating js and css files":
+      "cmd /c tools\\deploy.bat"
+  },
 	"node enyo/tools/minifier/minify.js -enyo ./enyo package.js -no-alias -less -output build/build":1,
 
   "cruft_files": [
@@ -31,7 +36,7 @@
     "webos": "./lib_webos/framework/",
     "android": "./phonegap/lib/android/",
     "ios": "./phonegap/lib/ios/CordovaLib/",
-	"windows8": "./phonegap/lib/windows8/",
+    "windows8": "phonegap\\lib\\windows8\\",
     "web": "./lib_web/"
   },
   
@@ -40,7 +45,7 @@
     "webos": "./build/webos",
     "android": "build/android/assets/www",
     "ios": "./build/ios/www",
-	"windows8": "./build/windows8/www",
+    "windows8": "build\\windows8\\www",
     "web": "./build/web"
   },
   
@@ -48,7 +53,7 @@
     "webos": "./lib_webos",
     "android": "./phonegap/lib/android",
     "ios": "./phonegap/lib/ios",
-	"windows8": "./phonegap/lib/windows8",
+    "windows8": "phonegap\\lib\\windows8",
     "web": "./lib_web"
   }
   
