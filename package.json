@@ -11,7 +11,8 @@
     "cli-color": "~0.1.7",
     "clean-css": "~0.4.2",
     "jsdom": "~0.2.15",
-    "iced-coffee-script": "~1.6.2c"
+    "iced-coffee-script": "~1.6.2c",
+    "express": "~3.3.4"
   },
   "devDependencies": {},
   "optionalDependencies": {},
