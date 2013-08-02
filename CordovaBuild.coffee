@@ -403,7 +403,7 @@ class CordovaBuild
     callback()
 
 
-  w8_build: (callback) =>
+  windows8_build: (callback) =>
     await fs.exists "./build/windows8", defer exists
     if exists
       @log "prepare", "Reusing old Skeleton directory. Delete build/windows8 to reset."
@@ -420,17 +420,17 @@ class CordovaBuild
 
     callback()
 
-  w8_install: (callback) =>
+  windows8_install: (callback) =>
     @log "INSTALL", "Install package via Visual Studio!"
     callback()
 
-  w8_launch: (callback) =>
+  windows8_launch: (callback) =>
     @log "LAUNCH", "Launch project via Visual Studio!"
     #exec "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\\ Simulator.app/Contents/MacOS/iPhone\\ Simulator -SimulateApplication package"
 
     callback()
 
-  w8_log: (callback) =>
+  windows8_log: (callback) =>
     @log "INSTALL", "Log app via Visual Studio!"
     callback()
 
@@ -450,6 +450,7 @@ targets = [
   'webos'
   'android',
   'ios',
+  'windows8'
 ]
 
 steps = [
