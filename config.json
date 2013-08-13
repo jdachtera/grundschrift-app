@@ -38,7 +38,7 @@
 	},
 
 	"comments": {
-		"Concatenating js and css files": "cmd /c tools\\deploy.bat"
+		"Concatenating js and css files": "cmd /c tools\\deploy.bat",
 		"node enyo/tools/minifier/minify.js -enyo ./enyo package.js -no-alias -less -output build/build": 1,
 	},
 
