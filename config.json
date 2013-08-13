@@ -1,61 +1,80 @@
 {
-  "app": {
-    "id": "de.unibi.grundschrift",
-    "title": "Grundschrift",
-    "version": "1.0.17",
-    "vendor": "Jascha Dachtera",
-    "category": "Education",
-    "icon": "assets/icons/Grundschrift_Icon.png"
-  },
+	"app": {
+		"id": "de.unibi.grundschrift",
+		"title": "Grundschrift",
+		"version": "1.0.17",
+		"vendor": "Jascha Dachtera",
+		"category": "Education",
+		"icon": "assets/icons/Grundschrift_Icon.png"
+	},
 
-  "sdk_dirs": {
-      "android": "~/android-sdks/",
-      "webos": "/opt/PalmSDK/Current/"
-  },
+	"sdk_dirs": {
+		"android": "~/android-sdks/",
+		"webos": "/opt/PalmSDK/Current/"
+	},
 
-  "build_commands": {
-      "Concatenating js and css files":
-      "sh tools/deploy.sh"
-  },
+	"flags": {
+		"customPrepare": true
+	},
 
-  "build_commands_windows": {
-      "Concatenating js and css files":
-      "cmd /c tools\\deploy.bat"
-  },
-	"node enyo/tools/minifier/minify.js -enyo ./enyo package.js -no-alias -less -output build/build":1,
+	"prepare_commands": {
+		"Concatenating js and css files": "./enyo/tools/deploy.js -b ../build/build -o ../#{@conf.build_dirs[@target]}",
 
-  "cruft_files": [
-    "\\.DS_Store$", "^/lib/\\.js$", "^/lib/\\.css$", "\\.less$"
-  ],
-  
-  "cruft_dirs": [
-    "\\.svn$", "\\.git.*$", "\\.settings$", "/lib/grundschrift$", "enyo$", "examples$", "api$", "tools$"
-  ],
-  
-  "cordova_paths": {
-    "webos": "./lib_webos/framework/",
-    "android": "./phonegap/lib/android/",
-    "ios": "./phonegap/lib/ios/CordovaLib/",
-    "windows8": "phonegap\\lib\\windows8\\",
-    "web": "./lib_web/"
-  },
-  
+		"Copying additional files": "cp main.html ../#{@conf.build_dirs[@target]}/main.html"
+	},
 
-  "build_dirs": {
-    "webos": "./build/webos",
-    "android": "build/android/assets/www",
-    "ios": "./build/ios/www",
-    "windows8": "build\\windows8\\www",
-    "web": "./build/web"
-  },
-  
-  "source_dirs": {
-    "webos": "./lib_webos",
-    "android": "./phonegap/lib/android",
-    "ios": "./phonegap/lib/ios",
-    "windows8": "phonegap\\lib\\windows8",
-    "web": "./lib_web"
-  }
-  
-  
+	"prepare_commands_windows": {
+		"Concatenating js and css files": "node enyo\\tools\\deploy.js -b ..\\build\\build -o ..\\#{@conf.build_dirs[@target]}",
+
+		"Copying additional files": "copy main.html ..\\#{@conf.build_dirs[@target]}\\main.html"
+	},
+
+	"build_commands": {
+
+	},
+
+	"build_commands_windows": {
+
+	},
+
+	"comments": {
+		"Concatenating js and css files": "cmd /c tools\\deploy.bat"
+		"node enyo/tools/minifier/minify.js -enyo ./enyo package.js -no-alias -less -output build/build": 1,
+	},
+
+
+	"cruft_files": [
+		"\\.DS_Store$", "^/lib/\\.js$", "^/lib/\\.css$", "\\.less$"
+	],
+
+	"cruft_dirs": [
+		"\\.svn$", "\\.git.*$", "\\.settings$", "/lib/grundschrift$", "enyo$", "examples$", "api$", "tools$"
+	],
+
+	"cordova_paths": {
+		"webos": "./lib_webos/framework/",
+		"android": "./phonegap/lib/android/",
+		"ios": "./phonegap/lib/ios/CordovaLib/",
+		"windows8": "phonegap\\lib\\windows8\\",
+		"web": "./lib_web/"
+	},
+
+
+	"build_dirs": {
+		"webos": "./build/webos",
+		"android": "build/android/assets/www",
+		"ios": "./build/ios/www",
+		"windows8": "build\\windows8\\www",
+		"web": "./build/web"
+	},
+
+	"source_dirs": {
+		"webos": "./lib_webos",
+		"android": "./phonegap/lib/android",
+		"ios": "./phonegap/lib/ios",
+		"windows8": "phonegap\\lib\\windows8",
+		"web": "./lib_web"
+	}
+
+
 }

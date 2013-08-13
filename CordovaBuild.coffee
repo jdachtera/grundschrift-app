@@ -67,18 +67,28 @@ class CordovaBuild
 
     await wrench.rmdirRecursive @conf.build_dirs[@target], defer err
     @log "prepare", "Deleted old build directory." if not err
-    
-    @log "prepare", "Copying source files to build directory."
-    await wrench.copyDirRecursive "./src", @conf.build_dirs[@target], defer err
-    @checkError err
+
+    if !@conf.flags.customPrepare
+      @log "prepare", "Copying source files to build directory."
+      await wrench.copyDirRecursive "./src", @conf.build_dirs[@target], defer err
+      @checkError err
+
+    if os.platform() == 'win32'
+      commands = @conf.prepare_commands_windows
+    else
+      commands = @conf.prepare_commands
+    for message, command of commands
+      @log "prepare", message
+      await exec command.split('#{@conf.build_dirs[@target]}').join(@conf.build_dirs[@target]), {cwd: './src'}, defer err
+      @checkError err
     
     @log "prepare", "Reading phonegap version"
     await fs.readFile "#{@conf.source_dirs[@target]}/VERSION", "utf-8", defer err, contents
     if err
       await fs.readFile "#{@conf.source_dirs[@target]}/CordovaLib/VERSION", "utf-8", defer err, contents
 
-    @checkError err
-    @conf["cordova_version"] = contents.split('\n')[0]
+    #@checkError err
+    @conf["cordova_version"] = (contents || '').split('\n')[0]
     
     @log "prepare", "Copying cordova.js"
     # Try cordova.js first then cordova-x.x.x.js
@@ -170,6 +180,21 @@ class CordovaBuild
     else
       await @debug defer err
       
+    callback()
+
+  web_build: (callback) =>
+    await @web defer err
+
+    package_json = {
+      name: @conf.app.title,
+      main: 'main.html'
+    }
+
+    @log "package", 'Creating node-webkit package'
+
+    await fs.writeFile "#{@conf.build_dirs[@target]}/package.json", JSON.stringify(package_json, null, 2), defer err
+    await exec "zip -r #{path.resolve("./bin/#{@conf.app.id}-#{@conf.app.version}.nw")} *", { cwd: @conf.build_dirs[@target] }, defer err, stdout, stderr
+    @checkError err, stdout, stderr
     callback()
     
   make: (callback) ->
@@ -453,6 +478,7 @@ class CordovaBuild
                     
 exec = require("child_process").exec
 spawn = require("child_process").spawn
+path = require "path"
 os = require "os"
 dns = require "dns"
 
