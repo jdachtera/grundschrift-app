@@ -2,7 +2,7 @@
 	"app": {
 		"id": "de.unibi.grundschrift",
 		"title": "Grundschrift",
-		"version": "1.0.17",
+		"version": "1.1.0_alpha",
 		"vendor": "Jascha Dachtera",
 		"category": "Education",
 		"icon": "assets/icons/Grundschrift_Icon.png"
@@ -18,7 +18,7 @@
 	},
 
 	"prepare_commands": {
-		"Concatenating js and css files": "./enyo/tools/deploy.js -b ../build/build -o ../#{@conf.build_dirs[@target]}",
+		"Concatenating js and css files": "./enyo/tools/deploy.js -o ../#{@conf.build_dirs[@target]}",
 
 		"Copying additional files": "cp main.html ../#{@conf.build_dirs[@target]}/main.html"
 	},
@@ -62,7 +62,7 @@
 
 	"build_dirs": {
 		"webos": "./build/webos",
-		"android": "build/android/assets/www",
+		"android": "build/android/assets/www/",
 		"ios": "./build/ios/www",
 		"windows8": "build\\windows8\\www",
 		"web": "./build/web"
